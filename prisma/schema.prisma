@@ -1,0 +1,885 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model active_storage_attachments {
+  id                   BigInt               @id @default(autoincrement())
+  name                 String               @db.VarChar
+  record_type          String               @db.VarChar
+  record_id            BigInt
+  blob_id              BigInt
+  created_at           DateTime             @db.Timestamp(6)
+  active_storage_blobs active_storage_blobs @relation(fields: [blob_id], references: [id])
+
+  @@unique([record_type, record_id, name, blob_id], name: "index_active_storage_attachments_uniqueness")
+  @@index([blob_id], name: "index_active_storage_attachments_on_blob_id")
+}
+
+model active_storage_blobs {
+  id                         BigInt                       @id @default(autoincrement())
+  key                        String                       @unique @db.VarChar
+  filename                   String                       @db.VarChar
+  content_type               String?                      @db.VarChar
+  metadata                   String?
+  byte_size                  BigInt
+  checksum                   String                       @db.VarChar
+  created_at                 DateTime                     @db.Timestamp(6)
+  active_storage_attachments active_storage_attachments[]
+}
+
+model ahoy_events {
+  id         BigInt    @id @default(autoincrement())
+  visit_id   BigInt?
+  user_id    BigInt?
+  name       String?   @db.VarChar
+  properties Json?
+  time       DateTime? @db.Timestamp(6)
+  tenant_id  BigInt?
+
+  @@index([name, time], name: "index_ahoy_events_on_name_and_time")
+  @@index([properties], name: "index_ahoy_events_on_properties")
+  @@index([tenant_id], name: "index_ahoy_events_on_tenant_id")
+  @@index([user_id], name: "index_ahoy_events_on_user_id")
+  @@index([visit_id], name: "index_ahoy_events_on_visit_id")
+}
+
+model ahoy_visits {
+  id               BigInt    @id @default(autoincrement())
+  visit_token      String?   @unique @db.VarChar
+  visitor_token    String?   @db.VarChar
+  user_id          BigInt?
+  ip               String?   @db.VarChar
+  user_agent       String?
+  referrer         String?
+  referring_domain String?   @db.VarChar
+  landing_page     String?
+  browser          String?   @db.VarChar
+  os               String?   @db.VarChar
+  device_type      String?   @db.VarChar
+  country          String?   @db.VarChar
+  region           String?   @db.VarChar
+  city             String?   @db.VarChar
+  latitude         Float?
+  longitude        Float?
+  utm_source       String?   @db.VarChar
+  utm_medium       String?   @db.VarChar
+  utm_term         String?   @db.VarChar
+  utm_content      String?   @db.VarChar
+  utm_campaign     String?   @db.VarChar
+  app_version      String?   @db.VarChar
+  os_version       String?   @db.VarChar
+  platform         String?   @db.VarChar
+  started_at       DateTime? @db.Timestamp(6)
+  tenant_id        BigInt?
+
+  @@index([tenant_id], name: "index_ahoy_visits_on_tenant_id")
+  @@index([user_id], name: "index_ahoy_visits_on_user_id")
+}
+
+model ar_internal_metadata {
+  key        String   @id @db.VarChar
+  value      String?  @db.VarChar
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+}
+
+model audits {
+  id              Int       @id @default(autoincrement())
+  auditable_id    Int?
+  auditable_type  String?   @db.VarChar
+  associated_id   Int?
+  associated_type String?   @db.VarChar
+  user_id         Int?
+  user_type       String?   @db.VarChar
+  username        String?   @db.VarChar
+  action          String?   @db.VarChar
+  audited_changes String?
+  version         Int?      @default(0)
+  comment         String?   @db.VarChar
+  remote_address  String?   @db.VarChar
+  request_uuid    String?   @db.VarChar
+  created_at      DateTime? @db.Timestamp(6)
+
+  @@index([associated_type, associated_id], name: "associated_index")
+  @@index([auditable_type, auditable_id], name: "auditable_index")
+  @@index([created_at], name: "index_audits_on_created_at")
+  @@index([request_uuid], name: "index_audits_on_request_uuid")
+  @@index([user_id, user_type], name: "user_index")
+}
+
+model blocks {
+  id         Int                    @id @default(autoincrement())
+  page_id    Int?
+  type       String?                @db.VarChar
+  section_id Int?
+  column     Int?
+  position   Int?
+  options    Unsupported("hstore")?
+  created_at DateTime?              @db.Timestamp(6)
+  updated_at DateTime?              @db.Timestamp(6)
+  file       String?                @db.VarChar
+}
+
+model categories {
+  id             BigInt   @id @default(autoincrement())
+  tenant_id      BigInt?
+  name           String?  @db.VarChar
+  ancestry       String?  @db.VarChar
+  ancestry_depth Int?
+  created_at     DateTime @db.Timestamp(6)
+  updated_at     DateTime @db.Timestamp(6)
+  // tenants        Tenant? @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id], name: "index_categories_on_tenant_id")
+}
+
+model chromecasts {
+  id                 Int         @id @default(autoincrement())
+  name               String?     @db.VarChar
+  tenant_id          Int?
+  location_id        Int?
+  playing_surface_id Int?
+  created_at         DateTime    @db.Timestamp(6)
+  updated_at         DateTime    @db.Timestamp(6)
+  refreshed_at       DateTime?   @db.Timestamp(6)
+  locations          locations?  @relation(fields: [location_id], references: [id])
+  facilities         facilities? @relation(fields: [playing_surface_id], references: [id])
+  tenants            Tenant?    @relation(fields: [tenant_id], references: [id])
+
+  @@index([location_id], name: "index_chromecasts_on_location_id")
+  @@index([playing_surface_id], name: "index_chromecasts_on_playing_surface_id")
+  @@index([tenant_id], name: "index_chromecasts_on_tenant_id")
+}
+
+model clubs {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar
+  short_name String?   @db.VarChar
+  tenant_id  Int?
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+
+  @@index([tenant_id], name: "index_clubs_on_tenant_id")
+}
+
+model events {
+  id                        Int       @id @default(autoincrement())
+  tenant_id                 Int?
+  division_id               Int?
+  season_id                 Int?
+  location_id               Int?
+  type                      String?   @db.VarChar
+  starts_on                 DateTime? @db.Timestamp(6)
+  ends_on                   DateTime? @db.Timestamp(6)
+  duration                  Int?
+  all_day                   Boolean?
+  summary                   String?   @db.VarChar
+  description               String?
+  created_at                DateTime? @db.Timestamp(6)
+  updated_at                DateTime? @db.Timestamp(6)
+  home_team_id              Int?
+  away_team_id              Int?
+  statsheet_id              Int?
+  statsheet_type            String?   @db.VarChar
+  home_team_score           Int?      @default(0)
+  away_team_score           Int?      @default(0)
+  home_team_name            String?   @db.VarChar
+  away_team_name            String?   @db.VarChar
+  home_team_custom_name     Boolean?
+  away_team_custom_name     Boolean?
+  text_before               String?   @db.VarChar
+  text_after                String?   @db.VarChar
+  result                    String?   @db.VarChar
+  completion                String?   @db.VarChar
+  exclude_from_team_records Boolean?
+  playing_surface_id        Int?
+  home_team_locker_room_id  Int?
+  away_team_locker_room_id  Int?
+  program_id                Int?
+  page_id                   Int?
+  private                   Boolean   @default(false)
+  pages                     Page?    @relation(fields: [page_id], references: [id])
+  programs                  programs? @relation(fields: [program_id], references: [id])
+
+  @@index([away_team_id], name: "index_events_on_away_team_id")
+  @@index([away_team_locker_room_id], name: "index_events_on_away_team_locker_room_id")
+  @@index([division_id], name: "index_events_on_division_id")
+  @@index([home_team_id], name: "index_events_on_home_team_id")
+  @@index([home_team_locker_room_id], name: "index_events_on_home_team_locker_room_id")
+  @@index([location_id], name: "index_events_on_location_id")
+  @@index([page_id], name: "index_events_on_page_id")
+  @@index([playing_surface_id], name: "index_events_on_playing_surface_id")
+  @@index([program_id], name: "index_events_on_program_id")
+  @@index([season_id], name: "index_events_on_season_id")
+  @@index([tenant_id], name: "index_events_on_tenant_id")
+}
+
+model facilities {
+  id          Int           @id @default(autoincrement())
+  type        String?       @db.VarChar
+  name        String?       @db.VarChar
+  tenant_id   Int?
+  location_id Int?
+  created_at  DateTime      @db.Timestamp(6)
+  updated_at  DateTime      @db.Timestamp(6)
+  locations   locations?    @relation(fields: [location_id], references: [id])
+  chromecasts chromecasts[]
+
+  @@index([location_id], name: "index_facilities_on_location_id")
+  @@index([tenant_id], name: "index_facilities_on_tenant_id")
+}
+
+model form_elements {
+  id             Int                    @id @default(autoincrement())
+  tenant_id      Int?
+  template_id    Int?
+  type           String?                @db.VarChar
+  name           String?                @db.VarChar(40)
+  position       Int?
+  properties     Unsupported("hstore")?
+  created_at     DateTime               @db.Timestamp(6)
+  updated_at     DateTime               @db.Timestamp(6)
+  required       Boolean?
+  hint           String?                @db.VarChar
+  form_templates form_templates?        @relation(fields: [template_id], references: [id])
+  tenants        Tenant?               @relation(fields: [tenant_id], references: [id])
+
+  @@unique([template_id, name], name: "index_form_elements_on_template_id_and_name")
+  @@index([tenant_id], name: "index_form_elements_on_tenant_id")
+}
+
+model form_packets {
+  id             Int              @id @default(autoincrement())
+  tenant_id      Int?
+  name           String?          @db.VarChar(40)
+  created_at     DateTime         @db.Timestamp(6)
+  updated_at     DateTime         @db.Timestamp(6)
+  tenants        Tenant?         @relation(fields: [tenant_id], references: [id])
+  form_templates form_templates[]
+  registrations  registrations[]
+  variants       variants[]
+
+  @@index([tenant_id], name: "index_form_packets_on_tenant_id")
+}
+
+model form_templates {
+  id            Int             @id @default(autoincrement())
+  tenant_id     Int?
+  packet_id     Int?
+  name          String?         @db.VarChar(40)
+  position      Int?
+  created_at    DateTime        @db.Timestamp(6)
+  updated_at    DateTime        @db.Timestamp(6)
+  form_packets  form_packets?   @relation(fields: [packet_id], references: [id])
+  tenants       Tenant?        @relation(fields: [tenant_id], references: [id])
+  form_elements form_elements[]
+  forms         forms[]
+
+  @@index([tenant_id], name: "index_form_templates_on_tenant_id")
+}
+
+model forms {
+  id              Int                    @id @default(autoincrement())
+  tenant_id       Int?
+  registration_id Int?
+  template_id     Int?
+  data            Unsupported("hstore")?
+  created_at      DateTime               @db.Timestamp(6)
+  updated_at      DateTime               @db.Timestamp(6)
+  completed       Boolean                @default(false)
+  registrations   registrations?         @relation(fields: [registration_id], references: [id])
+  form_templates  form_templates?        @relation(fields: [template_id], references: [id])
+  tenants         Tenant?               @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id], name: "index_forms_on_tenant_id")
+}
+
+model hockey_goals {
+  id                      Int       @id @default(autoincrement())
+  tenant_id               Int?
+  statsheet_id            Int?
+  period                  String?   @db.VarChar
+  minute                  Int?
+  second                  Int?
+  team_id                 Int?
+  scored_by_id            Int?
+  scored_on_id            Int?
+  assisted_by_id          Int?
+  also_assisted_by_id     Int?
+  strength                String?   @db.VarChar
+  created_at              DateTime? @db.Timestamp(6)
+  updated_at              DateTime? @db.Timestamp(6)
+  scored_by_number        String?   @db.VarChar
+  assisted_by_number      String?   @db.VarChar
+  also_assisted_by_number String?   @db.VarChar
+
+  @@index([statsheet_id], name: "index_hockey_goals_on_statsheet_id")
+  @@index([tenant_id], name: "index_hockey_goals_on_tenant_id")
+}
+
+model hockey_goaltenders {
+  id                       Int       @id @default(autoincrement())
+  type                     String?   @db.VarChar
+  tenant_id                Int?
+  team_id                  Int?
+  player_id                Int?
+  statsheet_id             Int?
+  games_played             Int?      @default(0)
+  minutes_played           Int?      @default(0)
+  shots_against            Int?      @default(0)
+  goals_against            Int?      @default(0)
+  saves                    Int?      @default(0)
+  save_percentage          Float?    @default(0.0)
+  goals_against_average    Float?    @default(0.0)
+  shutouts                 Int?      @default(0)
+  shootout_attempts        Int?      @default(0)
+  shootout_goals           Int?      @default(0)
+  shootout_save_percentage Float?    @default(0.0)
+  regulation_wins          Int?      @default(0)
+  regulation_losses        Int?      @default(0)
+  overtime_wins            Int?      @default(0)
+  overtime_losses          Int?      @default(0)
+  shootout_wins            Int?      @default(0)
+  shootout_losses          Int?      @default(0)
+  total_wins               Int?      @default(0)
+  total_losses             Int?      @default(0)
+  created_at               DateTime? @db.Timestamp(6)
+  updated_at               DateTime? @db.Timestamp(6)
+  jersey_number            String?   @db.VarChar
+  first_name               String?   @db.VarChar
+  last_name                String?   @db.VarChar
+
+  @@index([player_id], name: "index_hockey_goaltenders_on_player_id")
+  @@index([statsheet_id], name: "index_hockey_goaltenders_on_statsheet_id")
+  @@index([team_id], name: "index_hockey_goaltenders_on_team_id")
+  @@index([tenant_id], name: "index_hockey_goaltenders_on_tenant_id")
+}
+
+model hockey_penalties {
+  id                  Int       @id @default(autoincrement())
+  tenant_id           Int?
+  statsheet_id        Int?
+  period              String?   @db.VarChar
+  minute              Int?
+  second              Int?
+  team_id             Int?
+  committed_by_id     Int?
+  infraction          String?   @db.VarChar
+  duration            Int?
+  severity            String?   @db.VarChar
+  start_period        String?   @db.VarChar
+  start_minute        Int?
+  start_second        Int?
+  end_period          String?   @db.VarChar
+  end_minute          Int?
+  end_second          Int?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @db.Timestamp(6)
+  committed_by_number String?   @db.VarChar
+
+  @@index([statsheet_id], name: "index_hockey_penalties_on_statsheet_id")
+  @@index([tenant_id], name: "index_hockey_penalties_on_tenant_id")
+}
+
+model hockey_skaters {
+  id                        Int       @id @default(autoincrement())
+  type                      String?   @db.VarChar
+  tenant_id                 Int?
+  team_id                   Int?
+  player_id                 Int?
+  statsheet_id              Int?
+  jersey_number             String?   @db.VarChar
+  games_played              Int?      @default(0)
+  goals                     Int?      @default(0)
+  assists                   Int?      @default(0)
+  points                    Int?      @default(0)
+  penalties                 Int?      @default(0)
+  penalty_minutes           Int?      @default(0)
+  minor_penalties           Int?      @default(0)
+  major_penalties           Int?      @default(0)
+  misconduct_penalties      Int?      @default(0)
+  game_misconduct_penalties Int?      @default(0)
+  hat_tricks                Int?      @default(0)
+  playmakers                Int?      @default(0)
+  gordie_howes              Int?      @default(0)
+  ejections                 Int?      @default(0)
+  created_at                DateTime? @db.Timestamp(6)
+  updated_at                DateTime? @db.Timestamp(6)
+  first_name                String?   @db.VarChar
+  last_name                 String?   @db.VarChar
+
+  @@index([player_id], name: "index_hockey_skaters_on_player_id")
+  @@index([statsheet_id], name: "index_hockey_skaters_on_statsheet_id")
+  @@index([team_id], name: "index_hockey_skaters_on_team_id")
+  @@index([tenant_id], name: "index_hockey_skaters_on_tenant_id")
+}
+
+model hockey_statsheets {
+  id            Int       @id @default(autoincrement())
+  tenant_id     Int?
+  posted        Boolean?
+  away_score    Int?
+  home_score    Int?
+  latest_period String?   @db.VarChar
+  latest_minute Int?
+  latest_second Int?
+  min_1         Int?
+  min_2         Int?
+  min_3         Int?
+  min_ot        Int?
+  away_shots_1  Int?
+  away_shots_2  Int?
+  away_shots_3  Int?
+  away_shots_ot Int?
+  home_shots_1  Int?
+  home_shots_2  Int?
+  home_shots_3  Int?
+  home_shots_ot Int?
+  created_at    DateTime? @db.Timestamp(6)
+  updated_at    DateTime? @db.Timestamp(6)
+
+  @@index([tenant_id], name: "index_hockey_statsheets_on_tenant_id")
+}
+
+model league_divisions {
+  id                  Int       @id @default(autoincrement())
+  name                String?   @db.VarChar
+  slug                String?   @db.VarChar
+  show_standings      Boolean?
+  show_players        Boolean?
+  show_statistics     Boolean?
+  standings_array     String[]
+  tenant_id           Int?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @db.Timestamp(6)
+  standings_schema_id String?   @db.VarChar
+  program_id          Int?
+  period_length       Int?      @default(15)
+  programs            programs? @relation(fields: [program_id], references: [id])
+
+  @@index([program_id], name: "index_league_divisions_on_program_id")
+}
+
+model league_divisions_seasons {
+  id          Int  @id @default(autoincrement())
+  division_id Int?
+  season_id   Int?
+
+  @@index([division_id], name: "index_league_divisions_seasons_on_division_id")
+  @@index([season_id], name: "index_league_divisions_seasons_on_season_id")
+}
+
+model league_seasons {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar
+  slug       String?   @db.VarChar
+  starts_on  DateTime? @db.Date
+  tenant_id  Int?
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+  program_id Int?
+  programs   programs? @relation(fields: [program_id], references: [id])
+
+  @@index([program_id], name: "index_league_seasons_on_program_id")
+}
+
+model league_teams {
+  id                  Int       @id @default(autoincrement())
+  name                String?   @db.VarChar
+  short_name          String?   @db.VarChar
+  slug                String?   @db.VarChar
+  show_in_standings   Boolean?
+  pool                String?   @db.VarChar
+  seed                Int?
+  tenant_id           Int?
+  division_id         Int?
+  season_id           Int?
+  club_id             Int?
+  logo                String?   @db.VarChar
+  primary_color       String?   @db.VarChar
+  secondary_color     String?   @db.VarChar
+  accent_color        String?   @db.VarChar
+  main_colors         String[]
+  custom_colors       Boolean?
+  crop_x              Int?      @default(0)
+  crop_y              Int?      @default(0)
+  crop_h              Int?      @default(0)
+  crop_w              Int?      @default(0)
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @db.Timestamp(6)
+  games_played        Int?
+  wins                Int?
+  losses              Int?
+  ties                Int?
+  overtime_wins       Int?
+  overtime_losses     Int?
+  shootout_wins       Int?
+  shootout_losses     Int?
+  forfeit_wins        Int?
+  forfeit_losses      Int?
+  points              Int?
+  percent             Float?
+  scored              Int?
+  allowed             Int?
+  margin              Int?
+  last_result         String?   @db.VarChar
+  current_run         Int?
+  longest_win_streak  Int?
+  longest_loss_streak Int?
+
+  @@index([club_id], name: "index_league_teams_on_club_id")
+  @@index([division_id], name: "index_league_teams_on_division_id")
+  @@index([season_id], name: "index_league_teams_on_season_id")
+  @@index([tenant_id], name: "index_league_teams_on_tenant_id")
+}
+
+model locations {
+  id          Int           @id @default(autoincrement())
+  tenant_id   Int?
+  name        String?       @db.VarChar
+  short_name  String?       @db.VarChar
+  created_at  DateTime?     @db.Timestamp(6)
+  updated_at  DateTime?     @db.Timestamp(6)
+  deleted_at  DateTime?     @db.Timestamp(6)
+  chromecasts chromecasts[]
+  facilities  facilities[]
+
+  @@index([deleted_at], name: "index_locations_on_deleted_at")
+  @@index([tenant_id], name: "index_locations_on_tenant_id")
+}
+
+model Page {
+  id                  Int       @id @default(autoincrement())
+  tenant_id           Int?
+  title               String?   @db.VarChar
+  slug                String?   @db.VarChar
+  url_path            String?   @db.VarChar
+  meta_keywords       String?
+  meta_description    String?
+  link_url            String?   @db.VarChar
+  show_in_menu        Boolean?
+  title_in_menu       String?   @db.VarChar
+  skip_to_first_child Boolean?
+  draft               Boolean?
+  ancestry            String?   @db.VarChar
+  ancestry_depth      Int?
+  position            Int?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @db.Timestamp(6)
+  content             String?
+  events              events[]
+
+  @@index([ancestry], name: "index_pages_on_ancestry")
+  @@index([tenant_id], name: "index_pages_on_tenant_id")
+  @@map(name: "pages")
+}
+
+model passwordless_sessions {
+  id                   BigInt    @id @default(autoincrement())
+  authenticatable_type String?   @db.VarChar
+  authenticatable_id   BigInt?
+  timeout_at           DateTime  @db.Timestamp(6)
+  expires_at           DateTime  @db.Timestamp(6)
+  claimed_at           DateTime? @db.Timestamp(6)
+  user_agent           String
+  remote_addr          String    @db.VarChar
+  token                String    @db.VarChar
+  created_at           DateTime  @db.Timestamp(6)
+  updated_at           DateTime  @db.Timestamp(6)
+  tenant_id            BigInt?
+
+  @@index([authenticatable_type, authenticatable_id], name: "authenticatable")
+  @@index([tenant_id], name: "index_passwordless_sessions_on_tenant_id")
+}
+
+model players {
+  id            Int       @id @default(autoincrement())
+  tenant_id     Int?
+  team_id       Int?
+  first_name    String?   @db.VarChar
+  last_name     String?   @db.VarChar
+  jersey_number String?   @db.VarChar
+  birthdate     DateTime? @db.Date
+  email         String?   @db.VarChar
+  slug          String?   @db.VarChar
+  created_at    DateTime? @db.Timestamp(6)
+  updated_at    DateTime? @db.Timestamp(6)
+  substitute    Boolean?
+  position      String?   @db.VarChar
+
+  @@index([email], name: "index_players_on_email")
+  @@index([team_id], name: "index_players_on_team_id")
+  @@index([tenant_id], name: "index_players_on_tenant_id")
+}
+
+model posts {
+  id         Int       @id @default(autoincrement())
+  tenant_id  Int?
+  title      String?   @db.VarChar
+  summary    String?
+  body       String?
+  link_url   String?   @db.VarChar
+  image      String?   @db.VarChar
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+
+  @@index([tenant_id], name: "index_posts_on_tenant_id")
+}
+
+model products {
+  id                 Int        @id @default(autoincrement())
+  registrable_id     Int?
+  registrable_type   String?    @db.VarChar
+  title              String?    @db.VarChar(40)
+  description        String?
+  quantity_allowed   Int?
+  quantity_available Int?
+  tenant_id          Int?
+  created_at         DateTime   @db.Timestamp(6)
+  updated_at         DateTime   @db.Timestamp(6)
+  active             Boolean?
+  summary            String?
+  private            Boolean?
+  roster             Boolean?
+  tenants            Tenant?   @relation(fields: [tenant_id], references: [id])
+  variants           variants[]
+
+  @@index([registrable_type, registrable_id], name: "index_products_on_registrable_type_and_registrable_id")
+  @@index([tenant_id], name: "index_products_on_tenant_id")
+}
+
+model programs {
+  id               Int                @id @default(autoincrement())
+  tenant_id        Int?
+  type             String?            @db.VarChar
+  name             String?            @db.VarChar
+  description      String?
+  created_at       DateTime           @db.Timestamp(6)
+  updated_at       DateTime           @db.Timestamp(6)
+  slug             String?            @db.VarChar
+  tenants          Tenant?           @relation(fields: [tenant_id], references: [id])
+  events           events[]
+  league_divisions league_divisions[]
+  league_seasons   league_seasons[]
+
+  @@index([tenant_id], name: "index_programs_on_tenant_id")
+}
+
+model registrations {
+  id                Int           @id @default(autoincrement())
+  tenant_id         Int?
+  user_id           Int?
+  variant_id        Int?
+  first_name        String?       @db.VarChar(40)
+  last_name         String?       @db.VarChar(40)
+  email             String?       @db.VarChar
+  payment_id        String?       @db.VarChar
+  created_at        DateTime      @db.Timestamp(6)
+  updated_at        DateTime      @db.Timestamp(6)
+  price             Decimal?      @db.Decimal(20, 4)
+  form_packet_id    Int?
+  confirmation_code String?       @db.VarChar
+  birthdate         DateTime?     @db.Date
+  session_id        String?
+  payment_intent_id String?
+  uuid              String?       @db.VarChar
+  completed_at      DateTime?     @db.Timestamp(6)
+  abandoned_at      DateTime?     @db.Timestamp(6)
+  cancelled_at      DateTime?     @db.Timestamp(6)
+  checked_in_at     DateTime?     @db.Timestamp(6)
+  form_packets      form_packets? @relation(fields: [form_packet_id], references: [id])
+  tenants           Tenant?      @relation(fields: [tenant_id], references: [id])
+  users             users?        @relation(fields: [user_id], references: [id])
+  variants          variants?     @relation(fields: [variant_id], references: [id])
+  forms             forms[]
+  // vouchers          vouchers[]
+
+  @@index([tenant_id], name: "index_registrations_on_tenant_id")
+  @@index([user_id], name: "index_registrations_on_user_id")
+}
+
+model schema_migrations {
+  version String @unique @db.VarChar(255)
+}
+
+model sections {
+  id         Int       @id @default(autoincrement())
+  page_id    Int?
+  pattern    String?   @db.VarChar
+  position   Int?
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+
+  @@index([page_id], name: "index_sections_on_page_id")
+}
+
+model stripe_connects {
+  id         BigInt   @id @default(autoincrement())
+  tenant_id  BigInt?
+  referrer   String?  @db.VarChar
+  token      String?  @db.VarChar
+  client     String?  @db.VarChar
+  redirect   String?  @db.VarChar
+  status     String?  @db.VarChar
+  result     String?  @db.VarChar
+  created_at DateTime @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+  // tenants    Tenant? @relation(fields: [tenant_id], references: [id])
+
+  @@index([tenant_id], name: "index_stripe_connects_on_tenant_id")
+}
+
+model taggings {
+  id            Int       @id @default(autoincrement())
+  tag_id        Int?
+  taggable_id   Int?
+  taggable_type String?   @db.VarChar
+  tagger_id     Int?
+  tagger_type   String?   @db.VarChar
+  context       String?   @db.VarChar(128)
+  created_at    DateTime? @db.Timestamp(6)
+
+  @@unique([tag_id, taggable_id, taggable_type, context, tagger_id, tagger_type], name: "taggings_idx")
+  @@index([context], name: "index_taggings_on_context")
+  @@index([tag_id], name: "index_taggings_on_tag_id")
+  @@index([taggable_id], name: "index_taggings_on_taggable_id")
+  @@index([taggable_id, taggable_type, context], name: "index_taggings_on_taggable_id_and_taggable_type_and_context")
+  @@index([taggable_type], name: "index_taggings_on_taggable_type")
+  @@index([tagger_id], name: "index_taggings_on_tagger_id")
+  @@index([tagger_id, tagger_type], name: "index_taggings_on_tagger_id_and_tagger_type")
+  @@index([taggable_id, taggable_type, tagger_id, context], name: "taggings_idy")
+}
+
+model tags {
+  id             Int     @id @default(autoincrement())
+  name           String? @unique @db.VarChar
+  taggings_count Int?    @default(0)
+  color          String? @db.VarChar
+}
+
+model Tenant {
+  id                    Int               @id @default(autoincrement())
+  name                  String?           @db.VarChar
+  slug                  String?           @db.VarChar
+  host                  String?           @db.VarChar
+  description           String?
+  analytics_id          String?           @db.VarChar
+  theme                 String?           @db.VarChar
+  twitter_id            String?           @db.VarChar
+  facebook_id           String?           @db.VarChar
+  instagram_id          String?           @db.VarChar
+  foursquare_id         String?           @db.VarChar
+  google_plus_id        String?           @db.VarChar
+  created_at            DateTime?         @db.Timestamp(6)
+  updated_at            DateTime?         @db.Timestamp(6)
+  stripe_account_id     String?           @db.VarChar
+  stripe_public_api_key String?           @db.VarChar
+  stripe_access_token   String?           @db.VarChar
+  google_fonts          String?           @db.VarChar
+  time_zone             String?           @default("UTC") @db.VarChar
+  address               String?
+  stripe_client_id      String?           @db.VarChar
+  stripe_private_key    String?           @db.VarChar
+  stripe_public_key     String?           @db.VarChar
+  style                 String?
+  // categories            categories[]
+  chromecasts           chromecasts[]
+  form_elements         form_elements[]
+  form_packets          form_packets[]
+  form_templates        form_templates[]
+  forms                 forms[]
+  products              products[]
+  programs              programs[]
+  registrations         registrations[]
+  // stripe_connects       stripe_connects[]
+  variants              variants[]
+  // vouchers              vouchers[]
+  @@map(name: "tenants")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tenants_users {
+  tenant_id Int?
+  user_id   Int?
+
+  @@index([tenant_id], name: "index_tenants_users_on_tenant_id")
+  @@index([user_id], name: "index_tenants_users_on_user_id")
+  @@ignore
+}
+
+model users {
+  id                     Int             @id @default(autoincrement())
+  email                  String          @default("") @db.VarChar
+  encrypted_password     String          @default("") @db.VarChar
+  reset_password_token   String?         @unique @db.VarChar
+  reset_password_sent_at DateTime?       @db.Timestamp(6)
+  remember_created_at    DateTime?       @db.Timestamp(6)
+  sign_in_count          Int             @default(0)
+  current_sign_in_at     DateTime?       @db.Timestamp(6)
+  last_sign_in_at        DateTime?       @db.Timestamp(6)
+  current_sign_in_ip     String?         @db.VarChar
+  last_sign_in_ip        String?         @db.VarChar
+  created_at             DateTime?       @db.Timestamp(6)
+  updated_at             DateTime?       @db.Timestamp(6)
+  confirmation_token     String?         @unique @db.VarChar
+  confirmed_at           DateTime?       @db.Timestamp(6)
+  confirmation_sent_at   DateTime?       @db.Timestamp(6)
+  first_name             String?         @db.VarChar
+  last_name              String?         @db.VarChar
+  stripe_customer_id     String?         @db.VarChar
+  unconfirmed_email      String?         @db.VarChar
+  tenant_id              BigInt
+  admin                  Boolean?
+  operations             Boolean?
+  registrations          registrations[]
+  // vouchers               vouchers[]
+
+  @@unique([email, tenant_id], name: "index_users_on_email_and_tenant_id")
+  @@index([tenant_id], name: "index_users_on_tenant_id")
+}
+
+model variants {
+  id               Int             @id @default(autoincrement())
+  product_id       Int?
+  tenant_id        Int?
+  title            String?         @db.VarChar(40)
+  description      String?
+  price            Decimal?        @db.Decimal(20, 4)
+  quantity_allowed Int?
+  created_at       DateTime        @db.Timestamp(6)
+  updated_at       DateTime        @db.Timestamp(6)
+  form_packet_id   Int?
+  voucher_quantity Int?
+  voucher_amount   Int?
+  form_packets     form_packets?   @relation(fields: [form_packet_id], references: [id])
+  products         products?       @relation(fields: [product_id], references: [id])
+  tenants          Tenant?        @relation(fields: [tenant_id], references: [id])
+  registrations    registrations[]
+
+  @@index([tenant_id], name: "index_variants_on_tenant_id")
+}
+
+model vouchers {
+  id              BigInt         @id @default(autoincrement())
+  tenant_id       BigInt?
+  user_id         BigInt?
+  registration_id BigInt?
+  amount          Int?
+  expires_at      DateTime?      @db.Timestamp(6)
+  cancelled_at    DateTime?      @db.Timestamp(6)
+  consumed_at     DateTime?      @db.Timestamp(6)
+  created_at      DateTime       @db.Timestamp(6)
+  updated_at      DateTime       @db.Timestamp(6)
+  // registrations   registrations? @relation(fields: [registration_id], references: [id])
+  // tenants         Tenant?       @relation(fields: [tenant_id], references: [id])
+  // users           users?         @relation(fields: [user_id], references: [id])
+
+  @@index([registration_id], name: "index_vouchers_on_registration_id")
+  @@index([tenant_id], name: "index_vouchers_on_tenant_id")
+  @@index([user_id], name: "index_vouchers_on_user_id")
+}
