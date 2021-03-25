@@ -1,5 +1,5 @@
 import { Page } from ".prisma/client";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import { ParsedUrlQuery } from "node:querystring";
 import db from "../../../lib/db";
 
@@ -9,25 +9,27 @@ interface Query extends ParsedUrlQuery {
 }
 
 interface Props {
-  page: Page
+  page: Page;
 }
 
-export const getServerSideProps: GetServerSideProps<Props, Query> = async (ctx) => {
-  const page = await db.page.findFirst({ where: { tenantId: 1 }})
+export const getServerSideProps: GetServerSideProps<
+  Props,
+  Query
+> = async () => {
+  const page = await db.page.findFirst({ where: { tenantId: 1 } });
   return {
-    props: { 
-        page
-    }
-  }
-}
+    props: {
+      page,
+    },
+  };
+};
 
-const AdminPagesShow = ({ page }: Props) => {
+const AdminPagesShow: NextPage<Props> = ({ page }: Props) => {
   return (
     <div>
       <h1>{page.title}</h1>
-
     </div>
-  )
-}
+  );
+};
 
-export default AdminPagesShow
+export default AdminPagesShow;

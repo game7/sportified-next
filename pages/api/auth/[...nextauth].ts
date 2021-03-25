@@ -1,16 +1,16 @@
-import NextAuth from 'next-auth'
-import Providers from 'next-auth/providers'
-import logger from 'next-auth/dist/lib/logger'
-import nodemailer from 'nodemailer'
-import Adapters from 'next-auth/adapters'
-import db from '../../../lib/db'
+import NextAuth from "next-auth";
+import Providers from "next-auth/providers";
+import logger from "next-auth/dist/lib/logger";
+import nodemailer from "nodemailer";
+import Adapters from "next-auth/adapters";
+import db from "../../../lib/db";
 
 export default NextAuth({
   // Configure one or more authentication providers
   providers: [
     Providers.GitHub({
       clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
+      clientSecret: process.env.GITHUB_SECRET,
     }),
     Providers.Email({
       server: {
@@ -18,40 +18,46 @@ export default NextAuth({
         port: parseInt(process.env.EMAIL_SERVER_PORT),
         auth: {
           user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD
-        }
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
       },
       from: process.env.EMAIL_FROM,
       maxAge: 24 * 60 * 60, // How long email links are valid for (default 24h)
-      sendVerificationRequest: ({ identifier: email, url, baseUrl, provider }) => {
+      sendVerificationRequest: ({
+        identifier: email,
+        url,
+        baseUrl,
+        provider,
+      }) => {
         return new Promise((resolve, reject) => {
-          const { server, from } = provider
+          const { server, from } = provider;
           // Strip protocol from URL and use domain as site name
-          const site = baseUrl.replace(/^https?:\/\//, '')
-      
-          nodemailer
-            .createTransport(server)
-            .sendMail({
+          const site = baseUrl.replace(/^https?:\/\//, "");
+
+          nodemailer.createTransport(server).sendMail(
+            {
               to: email,
               from,
               subject: `Sign in to ${site}`,
               text: text({ url, site }),
-              html: html({ url, site, email })
-            }, (error) => {
+              html: html({ url, site, email }),
+            },
+            (error) => {
               if (error) {
-                logger.error('SEND_VERIFICATION_EMAIL_ERROR', email, error)
-                return reject(new Error('SEND_VERIFICATION_EMAIL_ERROR'))
+                logger.error("SEND_VERIFICATION_EMAIL_ERROR", email, error);
+                return reject(new Error("SEND_VERIFICATION_EMAIL_ERROR"));
               }
-              return resolve()
-            })
-        })
-      }
-    })
+              return resolve();
+            }
+          );
+        });
+      },
+    }),
   ],
   debug: false,
   adapter: Adapters.Prisma.Adapter({ prisma: db }),
   database: process.env.DATABASE_URL,
-})
+});
 
 // Email HTML body
 const html = ({ url, site, email }) => {
@@ -59,16 +65,16 @@ const html = ({ url, site, email }) => {
   // email address and the domain from being turned into a hyperlink by email
   // clients like Outlook and Apple mail, as this is confusing because it seems
   // like they are supposed to click on their email address to sign in.
-  const escapedEmail = `${email.replace(/\./g, '&#8203;.')}`
-  const escapedSite = `${site.replace(/\./g, '&#8203;.')}`
+  const escapedEmail = `${email.replace(/\./g, "&#8203;.")}`;
+  const escapedSite = `${site.replace(/\./g, "&#8203;.")}`;
 
   // Some simple styling options
-  const backgroundColor = '#f9f9f9'
-  const textColor = '#444444'
-  const mainBackgroundColor = '#ffffff'
-  const buttonBackgroundColor = '#346df1'
-  const buttonBorderColor = '#346df1'
-  const buttonTextColor = '#ffffff'
+  const backgroundColor = "#f9f9f9";
+  const textColor = "#444444";
+  const mainBackgroundColor = "#ffffff";
+  const buttonBackgroundColor = "#346df1";
+  const buttonBorderColor = "#346df1";
+  const buttonTextColor = "#ffffff";
 
   return `
 <body style="background: ${backgroundColor};">
@@ -101,8 +107,8 @@ const html = ({ url, site, email }) => {
     </tr>
   </table>
 </body>
-`
-}
+`;
+};
 
 // Email Text body (fallback for email clients that don't render HTML, e.g. feature phones)
-const text = ({ url, site }) => `Sign in to ${site}\n${url}\n\n`
+const text = ({ url, site }) => `Sign in to ${site}\n${url}\n\n`;

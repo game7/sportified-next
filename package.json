@@ -8,9 +8,13 @@
     "start": "next start",
     "migrate": "prisma migrate dev --preview-feature",
     "seed": "prisma db seed --preview-feature",
-    "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
+    "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'",
+    "format": "npx prettier --write .",
+    "lint": "npx eslint . --ext ts --ext tsx --ext js",
+    "test": "npx jest"
   },
   "dependencies": {
+    "-": "0.0.1",
     "@prisma/client": "2.19.0",
     "babel-plugin-superjson-next": "^0.2.3",
     "next": "10.0.9",
@@ -23,11 +27,34 @@
     "superjson": "^1.7.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^11.2.5",
     "@types/next-auth": "^3.7.2",
     "@types/node": "^14.14.35",
     "@types/react": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.23.1",
+    "eslint-webpack-plugin": "^2.5.3",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^26.6.3",
+    "lint-staged": ">=10",
+    "prettier": "^2.2.1",
     "prisma": "2.19.0",
+    "simple-git-hooks": ">=2.0.3",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write",
+    "*.js": "eslint --cache --fix"
   }
 }

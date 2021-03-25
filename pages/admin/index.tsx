@@ -1,11 +1,8 @@
+import { NextPage } from "next";
 import Link from "next/link";
 import AdminLayout from "../../lib/components/layouts/admin-layout";
 
-interface Props {
-
-}
-
-const AdminIndex = ({ }: Props) => {
+const AdminIndex: NextPage = () => {
   return (
     <AdminLayout title="Admin">
       <ul>
@@ -16,7 +13,7 @@ const AdminIndex = ({ }: Props) => {
         </li>
       </ul>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default AdminIndex
+export default AdminIndex;

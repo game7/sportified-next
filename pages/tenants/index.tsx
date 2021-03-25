@@ -1,31 +1,34 @@
-import { Page, Tenant } from ".prisma/client";
-import { GetServerSideProps } from "next";
-import Link from 'next/link'
+import { Tenant } from ".prisma/client";
+import { GetServerSideProps, NextPage } from "next";
+import Link from "next/link";
 import db from "../../lib/db";
 
 interface Props {
-   tenants: Tenant[]
+  tenants: Tenant[];
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const tenants = await db.tenant.findMany({ orderBy: [ { name: 'asc' } ] })
+export const getServerSideProps: GetServerSideProps = async () => {
+  const tenants = await db.tenant.findMany({ orderBy: [{ name: "asc" }] });
   return {
-    props: { tenants }
-  }
-}
+    props: { tenants },
+  };
+};
 
-const TenantsIndex = ({ tenants }: Props) => {
+const TenantsIndex: NextPage<Props> = ({ tenants }: Props) => {
   return (
     <div>
       <h1>Tenants</h1>
       <ul>
-        {tenants.map(tenant => (
+        {tenants.map((tenant) => (
           <li key={tenant.id}>
-            <Link href={`/tenants/${tenant.id}`}><a>{tenant.name}</a></Link></li>
+            <Link href={`/tenants/${tenant.id}`}>
+              <a>{tenant.name}</a>
+            </Link>
+          </li>
         ))}
       </ul>
     </div>
-  )
-}
+  );
+};
 
-export default TenantsIndex
+export default TenantsIndex;
