@@ -13,9 +13,7 @@ interface Props {
 }
 
 export const getServerSideProps: GetServerSideProps<Props, Query> = async (ctx) => {
-  console.log(Object.keys(ctx))
-  console.log(ctx.query)
-  const page = await db.page.findFirst({ where: { tenant_id: 1 }})
+  const page = await db.page.findFirst({ where: { tenantId: 1 }})
   return {
     props: { 
         page

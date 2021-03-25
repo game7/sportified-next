@@ -21,7 +21,7 @@ const TenantsIndex = ({ tenants }: Props) => {
       <ul>
         {tenants.map(tenant => (
           <li key={tenant.id}>
-            <Link href={`/admin/tenants/${tenant.id}`}><a>{tenant.name}</a></Link></li>
+            <Link href={`/tenants/${tenant.id}`}><a>{tenant.name}</a></Link></li>
         ))}
       </ul>
     </div>
