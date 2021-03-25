@@ -10,7 +10,6 @@
     "seed": "prisma db seed --preview-feature",
     "ts-node": "ts-node --compiler-options '{\"module\":\"CommonJS\"}'"
   },
-  
   "dependencies": {
     "@prisma/client": "2.19.0",
     "babel-plugin-superjson-next": "^0.2.3",
@@ -19,6 +18,8 @@
     "nookies": "^2.5.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^2.0.3",
     "superjson": "^1.7.3"
   },
   "devDependencies": {
