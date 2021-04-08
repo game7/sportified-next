@@ -1,0 +1,45 @@
+.block-editor {
+  position: relative;
+}
+
+.block-menu {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: -50px;
+  z-index: 1;
+}
+
+.block-id {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-left: 1px dashed #cccccc;
+  border-bottom: 1px dashed #cccccc;
+  border-bottom-left-radius: 3px;
+  background-color: #f5f5f5;
+  padding: 0px 6px;
+  min-width: 80px;
+  text-align: right;
+  z-index: 1;
+}
+
+.block-editor:hover,
+.block-editor-active {
+  border: 1px dashed #cccccc;
+  border-radius: 3px;
+  margin: -1px;
+  cursor: pointer;
+}
+
+.block-editor:hover .block-menu,
+.block-editor:hover .block-id,
+.block-editor-active .block-menu,
+.block-editor-active .block-id {
+  display: block;
+}
+
+.block {
+  position: relative;
+}

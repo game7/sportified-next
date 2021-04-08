@@ -2,7 +2,7 @@ import { Tenant } from ".prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import { ParsedUrlQuery } from "node:querystring";
 import nookies from "nookies";
-import db from "../../lib/db";
+import db from "../../src/db";
 
 interface Props {
   tenants: Tenant[];

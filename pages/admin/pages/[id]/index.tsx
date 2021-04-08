@@ -1,7 +1,7 @@
 import { Page } from ".prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import { ParsedUrlQuery } from "node:querystring";
-import db from "../../../lib/db";
+import db from "../../../../src/db";
 
 interface Query extends ParsedUrlQuery {
   tenantId: string;

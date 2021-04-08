@@ -3,7 +3,7 @@ import Providers from "next-auth/providers";
 import logger from "next-auth/dist/lib/logger";
 import nodemailer from "nodemailer";
 import Adapters from "next-auth/adapters";
-import db from "../../../lib/db";
+import db from "../../../src/db";
 
 export default NextAuth({
   // Configure one or more authentication providers

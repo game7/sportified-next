@@ -1,28 +1,39 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 
-const tenants: Prisma.TenantCreateInput[] = [
-  {
-    name: "Big Blades Hockey Arena",
-    host: "bigblades.com",
-    slug: "bigblades",
-  },
-  {
-    name: "Pigskin Youth Football Association",
-    host: "pyha.com",
-    slug: "pyha",
-  },
-];
+async function drop(tableName: string) {
+  console.log(`Dropping ${tableName}`);
+  return await db.$queryRaw(`TRUNCATE ${tableName} RESTART IDENTITY CASCADE`);
+}
 
-async function main() {
-  console.log(`Start seeding ...`);
-  for (const data of tenants) {
+async function dropTenants() {
+  return await drop("next.tenants");
+}
+
+async function loadTenants() {
+  const records = await db.$queryRaw<any[]>("SELECT * FROM public.tenants");
+  for (const r of records) {
     const tenant = await db.tenant.create({
-      data,
+      data: {
+        name: r.name,
+        host: r.host,
+        slug: r.slug,
+      },
     });
     console.log(`Created tenant with id: ${tenant.id}`);
   }
+}
+
+async function dropPages() {
+  return await drop("next.pages");
+}
+
+async function main() {
+  console.log(`Start seeding ...`);
+  await dropPages();
+  await dropTenants();
+  await loadTenants();
   console.log(`Seeding finished.`);
 }
 
