@@ -1,7 +1,7 @@
 import { Tenant } from ".prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
-import db from "../../lib/db";
+import db from "../../src/db";
 
 interface Props {
   tenants: Tenant[];

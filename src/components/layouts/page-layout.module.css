@@ -1,0 +1,8 @@
+.page-title-selector {
+  margin: 1px;
+}
+.page-title-selector:hover {
+  cursor: pointer;
+  border: 1px dashed green;
+  margin: 0px;
+}

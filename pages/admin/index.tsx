@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import Link from "next/link";
-import AdminLayout from "../../lib/components/layouts/admin-layout";
+import AdminLayout from "../../src/components/layouts/admin-layout";
 
 const AdminIndex: NextPage = () => {
   return (

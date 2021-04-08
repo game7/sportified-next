@@ -1,7 +1,8 @@
 import { Page } from ".prisma/client";
 import { GetServerSideProps, NextPage } from "next";
 import { ParsedUrlQuery } from "node:querystring";
-import db from "../../../lib/db";
+import { PagePreview } from "../../../../src/components/pages/edit/page-preview";
+import db from "../../../../src/db";
 
 interface Query extends ParsedUrlQuery {
   tenantId: string;
@@ -24,12 +25,8 @@ export const getServerSideProps: GetServerSideProps<
   };
 };
 
-const AdminPagesShow: NextPage<Props> = ({ page }: Props) => {
-  return (
-    <div>
-      <h1>{page.title}</h1>
-    </div>
-  );
+const AdminPagesPreview: NextPage<Props> = ({ page }) => {
+  return <PagePreview page={page}></PagePreview>;
 };
 
-export default AdminPagesShow;
+export default AdminPagesPreview;

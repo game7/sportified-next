@@ -14,3 +14,7 @@ a {
 * {
   box-sizing: border-box;
 }
+
+div#__next {
+  height: 100%;
+}
